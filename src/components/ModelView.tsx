@@ -1,11 +1,10 @@
 
-import { OrbitControls } from '@react-three/drei'
-import { TransformControls } from '@react-three/drei';
 import React, { useRef, useEffect, useState }  from 'react';
 import { useThree } from 'react-three-fiber';
+import { TransformControls, OrbitControls } from '@react-three/drei';
 import { CCDIKHelper, CCDIKSolver } from 'three/examples/jsm/animation/CCDIKSolver';
 
-function Model(props: any) {
+function ModelView(props: any) {
     const mesh = useRef<THREE.Mesh>()
     const orbit = useRef<OrbitControls>()
     const transform = useRef<TransformControls>()
@@ -63,4 +62,4 @@ function Model(props: any) {
     );
 }
 
-export default Model;
+export default ModelView;
