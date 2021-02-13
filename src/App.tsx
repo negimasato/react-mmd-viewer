@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useRef, useState } from 'react';
 import * as p from '../package.json';
 import './App.css';
 import { AppBar, createStyles, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, Toolbar, Typography } from '@material-ui/core';
@@ -28,6 +28,7 @@ function App() {
     const [selectObject, setSelectObject] = useState(0);
     const [activeModelId, setActiveModelId] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
+    const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
 
     const classes = useStyles();
     const [openLicense, setOpenLicense] = React.useState(false);
@@ -87,7 +88,7 @@ function App() {
                         <Suspense fallback={null}>
                         {models.map((model,index) => {
                             return(
-                            <ModelView key={model.id} modelClass={model} position={[0,0,0]}　selectObject={selectObject} activeModelId={activeModelId} controlMode={controlMode}/>
+                            <ModelView key={model.id} modelClass={model} position={[0,0,0]}　selectObject={selectObject} setSelectObject={setSelectObject} isShowBoneSelect={isShowBoneSelect} activeModelId={activeModelId} controlMode={controlMode}/>
                         )})}
                         </Suspense>
                         <gridHelper />
@@ -97,7 +98,15 @@ function App() {
                     <ModelControl key="modelcontrol" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
                 </Grid>
                 <Grid item xs={6} style={{border: "1px solid #ffffff"}}>
-                    <BoneControl key="bonecontrol" models={models} setActiveModelId={setActiveModelId} controlMode={controlMode} setControlMode={setControlMode} />
+                    <BoneControl 
+                        key="bonecontrol" 
+                        models={models} 
+                        setActiveModelId={setActiveModelId} 
+                        controlMode={controlMode} 
+                        setControlMode={setControlMode} 
+                        isShowBoneSelect={isShowBoneSelect}
+                        setIsShowBoneSelect={setIsShowBoneSelect}
+                    />
                 </Grid>
             </Grid>
         </>

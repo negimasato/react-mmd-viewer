@@ -5,6 +5,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { Button, createStyles, makeStyles, Theme } from '@material-ui/core';
 import { SkinnedMesh } from 'three';
+import * as posenet from '@tensorflow-models/posenet';
+import * as tf from '@tensorflow/tfjs';
+import { createImageData, loadImage } from 'canvas';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -61,6 +64,34 @@ function ModelControl(props:any){
         props.setModels(newModels);
         props.setActiveModelId(newActiveId);
     }
+
+    async function setPosenet(){
+        // @ts-ignore
+        let fileHandle;
+        // @ts-ignore
+        [fileHandle] = await window.showOpenFilePicker();
+        var file = await fileHandle.getFile();
+        const base64Str = await readFileAsDataURL(file);
+        if(typeof base64Str === "string"){
+            const img = await loadImage(base64Str);
+            const canvas = createImageData(img.width, img.height);
+            const input = tf.browser.fromPixels(canvas);
+            const net = await posenet.load();
+            const pose = await net.estimateSinglePose(input,{
+                flipHorizontal: false
+            });
+            console.log(pose);
+        }
+    }
+
+    async function readFileAsDataURL(file:File): Promise<string | ArrayBuffer | null> {
+        return new Promise((resolve, reject) => {
+            let fileReader = new FileReader();
+            fileReader.onload = (e) => resolve(fileReader.result);
+            fileReader.readAsDataURL(file);
+        });
+    }
+
     return (
         <div style={{textAlign: "center"}}>
             <p style={{color:"black",fontSize:20,margin:"5px 0px 0px 0px"}}>モデル操作</p>
@@ -81,6 +112,9 @@ function ModelControl(props:any){
                         <Button variant="contained" style={{width:"50%"}} onClick={onLoadModel}>読み込み</Button>
                         <Button variant="contained" style={{width:"50%"}} onClick={onDeleteModel}>削除</Button>
                     </div>
+                    <>
+                        <Button variant="contained" style={{width:"100%"}} onClick={setPosenet}>PoseNet</Button>
+                    </>
                 </FormControl>
             </div>
         </div>
