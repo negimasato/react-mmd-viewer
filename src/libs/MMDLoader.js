@@ -352,6 +352,21 @@ var MMDLoader = ( function () {
 
 		},
 
+		loadVPDFromFile: function (file, onLoad, onProgress, onError) {
+			var parser = this._getParser();
+			let reader = new FileReader();
+			reader.onload = function () {
+				onLoad( parser.parseVpd( reader.result, true ) );
+			}
+			reader.onprogress = function (event) {
+				onProgress(event);
+			}
+			reader.onerror = function (event) {
+				onError(event);
+			} 
+			reader.readAsText(file, 'Shift_JIS');
+		},
+
 		// private methods
 
 		_extractExtension: function ( url ) {

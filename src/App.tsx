@@ -1,27 +1,20 @@
 import React, { Suspense, useRef, useState } from 'react';
 import * as p from '../package.json';
 import './App.css';
-import { AppBar, createStyles, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, Button, createMuiTheme, createStyles, CssBaseline, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, ThemeProvider, Toolbar, Typography } from '@material-ui/core';
+import * as colors from "@material-ui/core/colors";
 import InfoIcon from '@material-ui/icons/Info';
+import MenuIcon from '@material-ui/icons/Menu';
+import Brightness7Icon from "@material-ui/icons/Brightness7";
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import Box from '@material-ui/core/Box';
 import { Canvas } from 'react-three-fiber';
 import ModelControl from './components/ModelControl';
 import ModelView from './components/ModelView';
 import BoneControl from './components/BoneControl';
 import { ModelClass } from './classes/ModelClass';
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      flexGrow: 1,
-    },
-  }),
-);
+import { MMDLoader } from './libs/MMDLoader';
+import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
 
 function App() {
     const [models, setModels] = useState<ModelClass[]>([]);
@@ -30,31 +23,100 @@ function App() {
     const [controlMode, setControlMode] = useState('rotate');
     const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
 
-    const classes = useStyles();
-    const [openLicense, setOpenLicense] = React.useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-    const open = Boolean(anchorEl);
+    const [menuName, setMenuName] = React.useState("");
+    const [darkMode, setDarkMode] = React.useState(
+        localStorage.getItem("darkMode") === "on" ? true : false
+    );
     
-    const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    const handleMenu = (event: React.MouseEvent<HTMLElement>, menuName:string) => {
         setAnchorEl(event.currentTarget);
+        setMenuName(menuName);
     };
     
     const handleClose = () => {
         setAnchorEl(null);
+        setMenuName("");
     };
 
+    const handleDarkModeOn = () => {
+        localStorage.setItem("darkMode", "on");
+        setDarkMode(true);
+    };
+    const handleDarkModeOff = () => {
+        localStorage.setItem("darkMode", "off");
+        setDarkMode(false);
+    };
+    const theme = createMuiTheme({
+        palette: {
+            type: darkMode ? "dark" : "light",
+        },
+    });
+
+    const openPoseFile = async (e: any) => {
+        setAnchorEl(null);
+        setMenuName("");
+        let fileHandle;
+        // @ts-ignore
+        [fileHandle] = await window.showOpenFilePicker();
+        if(!fileHandle)return;
+        // @ts-ignore
+        var file = await fileHandle.getFile();
+        const loader = new MMDLoader();
+        const helper = new MMDAnimationHelper();
+        loader.loadVPDFromFile(file,(vpd) => {
+            if(models.length === 0){
+                alert("モデルデータがありません。");
+                return;
+            }
+            const mesh = models[selectObject].mesh;
+            if(!mesh){
+                alert("モデルデータを取得できませんでした。");
+                return;
+            }
+            helper.pose(mesh,vpd);
+        }, (progress) => {
+            console.log(progress);
+        }, (error) => {
+            console.log(error);
+        })
+    }
+
     return (
-        <>
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6" color="inherit" className={classes.title}>
-                        React MMD Viewer ver.{p.version}
-                    </Typography>
+        <ThemeProvider theme={theme}>
+            <CssBaseline/>
+            <AppBar color="default">
+                <Toolbar variant="dense">
+                    <Box display='flex' flexGrow={1}>
+                        <Typography variant="h6">
+                            React MMD Viewer ver.{p.version}
+                        </Typography>
+                        <Button aria-controls="simple-menu" aria-haspopup="true" onClick={e => handleMenu(e,"file")}>
+                            File
+                        </Button>
+                        <Menu
+                            id="menu-appbar"
+                            anchorEl={anchorEl}
+                            anchorOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'right',
+                            }}
+                            open={menuName === 'file' ? true : false}
+                            onClose={handleClose}
+                        >
+                            <MenuItem onClick={openPoseFile}>ポーズ読み込み</MenuItem>
+                        </Menu>
+                    </Box>
                     <IconButton
                         aria-label="account of current user"
                         aria-controls="menu-appbar"
                         aria-haspopup="true"
-                        onClick={handleMenu}
+                        onClick={e => handleMenu(e,"info")}
                         color="inherit"
                     >
                         <InfoIcon />
@@ -71,11 +133,20 @@ function App() {
                             vertical: 'top',
                             horizontal: 'right',
                         }}
-                        open={open}
+                        open={menuName === 'info' ? true : false}
                         onClose={handleClose}
                     >
                         <MenuItem onClick={() => window.open("https://github.com/" + p.author.name + "/" + p.name)}>Github</MenuItem>
                     </Menu>
+                    {darkMode ? (
+                        <IconButton color="inherit" onClick={handleDarkModeOff}>
+                        <Brightness7Icon />
+                        </IconButton>
+                    ) : (
+                        <IconButton color="inherit" onClick={handleDarkModeOn}>
+                        <Brightness4Icon />
+                        </IconButton>
+                    )}
                 </Toolbar>
             </AppBar>
             <Grid container>
@@ -109,7 +180,7 @@ function App() {
                     />
                 </Grid>
             </Grid>
-        </>
+        </ThemeProvider>
     );
 }
 

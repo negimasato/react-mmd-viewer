@@ -94,7 +94,7 @@ function ModelControl(props:any){
 
     return (
         <div style={{textAlign: "center"}}>
-            <p style={{color:"black",fontSize:20,margin:"5px 0px 0px 0px"}}>モデル操作</p>
+            <p style={{fontSize:20,margin:"5px 0px 0px 0px"}}>モデル操作</p>
             <div style={{padding:"0px 10px 10px 10px"}}>
                 <FormControl variant="filled" className={classes.formControl}>
                     <div>
@@ -112,9 +112,9 @@ function ModelControl(props:any){
                         <Button variant="contained" style={{width:"50%"}} onClick={onLoadModel}>読み込み</Button>
                         <Button variant="contained" style={{width:"50%"}} onClick={onDeleteModel}>削除</Button>
                     </div>
-                    <>
+                    {/* <>
                         <Button variant="contained" style={{width:"100%"}} onClick={setPosenet}>PoseNet</Button>
-                    </>
+                    </> */}
                 </FormControl>
             </div>
         </div>

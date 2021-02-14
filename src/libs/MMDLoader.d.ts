@@ -29,4 +29,5 @@ export class MMDLoader extends Loader {
 	loadWithAnimation( url: string, vmdUrl: string | string[], onLoad: ( object: MMDLoaderAnimationObject ) => void, onProgress?: ( event: ProgressEvent ) => void, onError?: ( event: ErrorEvent ) => void ): void;
 	setAnimationPath( animationPath: string ): this;
 
+	loadVPDFromFile(file: File, onLoad: ( object: object ) => void, onProgress?: ( event: ProgressEvent ) => void, onError?: ( event: ErrorEvent ) => void ): void;
 }
