@@ -56,19 +56,31 @@ function App() {
     const openPoseFile = async (e: any) => {
         setAnchorEl(null);
         setMenuName("");
+        if(models.length === 0){
+            alert("モデルデータがありません。");
+            return;
+        }
         let fileHandle;
+        const pickerOpts = {
+            types: [
+              {
+                description: 'MMD Pose Data',
+                accept: {
+                  '*/*': ['.vpd']
+                }
+              },
+            ],
+            excludeAcceptAllOption: true,
+            multiple: false
+        };
         // @ts-ignore
-        [fileHandle] = await window.showOpenFilePicker();
+        [fileHandle] = await window.showOpenFilePicker(pickerOpts);
         if(!fileHandle)return;
         // @ts-ignore
         var file = await fileHandle.getFile();
         const loader = new MMDLoader();
         const helper = new MMDAnimationHelper();
         loader.loadVPDFromFile(file,(vpd) => {
-            if(models.length === 0){
-                alert("モデルデータがありません。");
-                return;
-            }
             const mesh = models[selectObject].mesh;
             if(!mesh){
                 alert("モデルデータを取得できませんでした。");
