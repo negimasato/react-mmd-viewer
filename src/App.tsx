@@ -12,6 +12,7 @@ import { Canvas } from 'react-three-fiber';
 import ModelControl from './components/ModelControl';
 import ModelView from './components/ModelView';
 import BoneControl from './components/BoneControl';
+import FaceControl from './components/FaceControl';
 import { ModelClass } from './classes/ModelClass';
 import { MMDLoader } from './libs/MMDLoader';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
@@ -177,10 +178,10 @@ function App() {
                         <gridHelper />
                     </Canvas>
                 </Grid>
-                <Grid item xs={6} style={{border: "1px solid #ffffff"}}>
+                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <ModelControl key="modelcontrol" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
                 </Grid>
-                <Grid item xs={6} style={{border: "1px solid #ffffff"}}>
+                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <BoneControl 
                         key="bonecontrol" 
                         models={models} 
@@ -190,6 +191,9 @@ function App() {
                         isShowBoneSelect={isShowBoneSelect}
                         setIsShowBoneSelect={setIsShowBoneSelect}
                     />
+                </Grid>
+                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
+                    <FaceControl key="faceControl" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
                 </Grid>
             </Grid>
         </ThemeProvider>
