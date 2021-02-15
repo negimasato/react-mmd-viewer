@@ -16,6 +16,7 @@ import FaceControl from './components/FaceControl';
 import { ModelClass } from './classes/ModelClass';
 import { MMDLoader } from './libs/MMDLoader';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
+import { OrbitControls } from '@react-three/drei';
 
 function App() {
     const [models, setModels] = useState<ModelClass[]>([]);
@@ -23,6 +24,7 @@ function App() {
     const [activeModelId, setActiveModelId] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
     const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
+    const orbit = useRef<OrbitControls>()
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuName, setMenuName] = React.useState("");
@@ -172,9 +174,20 @@ function App() {
                         <Suspense fallback={null}>
                         {models.map((model,index) => {
                             return(
-                            <ModelView key={model.id} modelClass={model} position={[0,0,0]}　selectObject={selectObject} setSelectObject={setSelectObject} isShowBoneSelect={isShowBoneSelect} activeModelId={activeModelId} controlMode={controlMode}/>
+                            <ModelView 
+                                key={model.id} 
+                                modelClass={model} 
+                                position={[0,0,0]}　
+                                selectObject={selectObject}
+                                setSelectObject={setSelectObject}
+                                isShowBoneSelect={isShowBoneSelect} 
+                                activeModelId={activeModelId}
+                                controlMode={controlMode}
+                                orbit={orbit}
+                            />
                         )})}
                         </Suspense>
+                        <OrbitControls ref={orbit} />
                         <gridHelper />
                     </Canvas>
                 </Grid>

@@ -104,17 +104,29 @@ var MMDLoader = ( function () {
 			});
 			return result_base64;
 		},
+		getFilesFromDir: async function(dirHandle,path) {
+			for await(var [name, entry] of dirHandle) {
+				if (entry.kind === 'file') {
+					var file = await entry.getFile();
+					this.fileArray[path + name] = await this.readFileAsDataURL(file);
+				} else if (entry.kind === 'directory') {
+					await this.getFilesFromDir(entry, entry.name + '\\');
+				}
+			}
+		},
 		loadFromDir: async function(dirHandle, onLoad, onProgress, onError ){
 			var builder = this.meshBuilder.setCrossOrigin( this.crossOrigin );
-			for await(var [name, entry] of dirHandle) {
-				var file = await entry.getFile();
-				this.fileArray[name] = await this.readFileAsDataURL(file);
-			}
+			await this.getFilesFromDir(dirHandle,"");
 			for await(var [name, entry] of dirHandle) {
 				var modelExtension = this._extractExtension(name).toLowerCase();
 				if(modelExtension === 'pmx') {
 					const file = await entry.getFile();
 					this.loadPMXFromFile(file,(data) => {
+						onLoad(builder.buildDir( data, this.fileArray, null, null));
+					});
+				} else if(modelExtension === 'pmd') {
+					const file = await entry.getFile();
+					this.loadPMDFromFile(file,(data) => {
 						onLoad(builder.buildDir( data, this.fileArray, null, null));
 					});
 				}
@@ -250,6 +262,15 @@ var MMDLoader = ( function () {
 
 				}, onProgress, onError );
 
+		},
+
+		loadPMDFromFile: function ( file, onLoad, onProgress, onError ) {
+			var parser = this._getParser();
+			let reader = new FileReader();
+			reader.onload = function () {
+				onLoad( parser.parsePmd( reader.result, true ) );
+			}
+			reader.readAsArrayBuffer(file);
 		},
 
 		/**
@@ -927,7 +948,7 @@ var MMDLoader = ( function () {
 					} else if ( morph.type === 8 ) { // material
 
                         // TODO: implement
-                        console.log('material=' + morph.name);
+                        // console.log('material=' + morph.name);
 
 					}
 
