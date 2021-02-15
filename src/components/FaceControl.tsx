@@ -103,11 +103,11 @@ function FaceControl(props:any){
         <div style={{textAlign: "center"}}>
             <p style={{fontSize:20,margin:"5px 0px 0px 0px"}}>表情操作</p>
             <div style={{padding:"0px 10px 10px 10px"}}>
-                <MorphControl label="目" morphs={morphs[0]} morphType={0} handleChange={handleChange} morphSliders={morphSliders} />
-                <MorphControl label="リップ" morphs={morphs[1]} morphType={1} handleChange={handleChange} morphSliders={morphSliders} />
+                <MorphControl label="まゆ" morphs={morphs[0]} morphType={0} handleChange={handleChange} morphSliders={morphSliders} />
+                <MorphControl label="目" morphs={morphs[1]} morphType={1} handleChange={handleChange} morphSliders={morphSliders} />
             </div>
             <div style={{padding:"0px 10px 10px 10px"}}>
-                <MorphControl label="まゆ" morphs={morphs[2]} morphType={2} handleChange={handleChange} morphSliders={morphSliders} />
+                <MorphControl label="リップ" morphs={morphs[2]} morphType={2} handleChange={handleChange} morphSliders={morphSliders} />
                 <MorphControl label="その他" morphs={morphs[3]} morphType={3} handleChange={handleChange} morphSliders={morphSliders} />
             </div>
         </div>
