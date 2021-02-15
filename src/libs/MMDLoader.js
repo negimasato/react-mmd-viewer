@@ -124,6 +124,11 @@ var MMDLoader = ( function () {
 					this.loadPMXFromFile(file,(data) => {
 						onLoad(builder.buildDir( data, this.fileArray, null, null));
 					});
+				} else if(modelExtension === 'pmd') {
+					const file = await entry.getFile();
+					this.loadPMDFromFile(file,(data) => {
+						onLoad(builder.buildDir( data, this.fileArray, null, null));
+					});
 				}
 			}
 			
@@ -257,6 +262,15 @@ var MMDLoader = ( function () {
 
 				}, onProgress, onError );
 
+		},
+
+		loadPMDFromFile: function ( file, onLoad, onProgress, onError ) {
+			var parser = this._getParser();
+			let reader = new FileReader();
+			reader.onload = function () {
+				onLoad( parser.parsePmd( reader.result, true ) );
+			}
+			reader.readAsArrayBuffer(file);
 		},
 
 		/**

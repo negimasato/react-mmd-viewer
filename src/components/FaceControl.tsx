@@ -82,8 +82,21 @@ function FaceControl(props:any){
                 id:i,
                 name:m.name
             }
-            if(m.panel < 1 || m.panel > 4)continue;
-            morphs_array[m.panel - 1].push(morph);
+            if (m.panel) {
+                //pmx
+                if(m.panel < 1 || m.panel > 4) {
+                    i++;
+                    continue;
+                }
+                morphs_array[m.panel - 1].push(morph);
+            } else {
+                //pmd
+                if(m.type < 1 || m.type > 4) {
+                    i++;
+                    continue;
+                }
+                morphs_array[m.type - 1].push(morph);
+            }
             i++;
         }
         setMorphs(morphs_array)
