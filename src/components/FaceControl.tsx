@@ -66,7 +66,14 @@ function FaceControl(props:any){
 
     useEffect(() => {
         if(props.activeModelId === -1)return;
+        if(props.models.length < props.activeModelId) {
+            console.error("存在しない配列にアクセスしようとしています。");
+            return;
+        }
         const mesh:SkinnedMesh = props.models[props.activeModelId].mesh;
+        if(!mesh) {
+            return;
+        }
         const morphs = mesh.geometry.userData.MMD.morphs;
         let morphs_array:any = [[],[],[],[]];
         var i=0;
@@ -75,6 +82,7 @@ function FaceControl(props:any){
                 id:i,
                 name:m.name
             }
+            if(m.panel < 1 || m.panel > 4)continue;
             morphs_array[m.panel - 1].push(morph);
             i++;
         }

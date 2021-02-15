@@ -104,12 +104,19 @@ var MMDLoader = ( function () {
 			});
 			return result_base64;
 		},
+		getFilesFromDir: async function(dirHandle,path) {
+			for await(var [name, entry] of dirHandle) {
+				if (entry.kind === 'file') {
+					var file = await entry.getFile();
+					this.fileArray[path + name] = await this.readFileAsDataURL(file);
+				} else if (entry.kind === 'directory') {
+					await this.getFilesFromDir(entry, entry.name + '\\');
+				}
+			}
+		},
 		loadFromDir: async function(dirHandle, onLoad, onProgress, onError ){
 			var builder = this.meshBuilder.setCrossOrigin( this.crossOrigin );
-			for await(var [name, entry] of dirHandle) {
-				var file = await entry.getFile();
-				this.fileArray[name] = await this.readFileAsDataURL(file);
-			}
+			await this.getFilesFromDir(dirHandle,"");
 			for await(var [name, entry] of dirHandle) {
 				var modelExtension = this._extractExtension(name).toLowerCase();
 				if(modelExtension === 'pmx') {
@@ -927,7 +934,7 @@ var MMDLoader = ( function () {
 					} else if ( morph.type === 8 ) { // material
 
                         // TODO: implement
-                        console.log('material=' + morph.name);
+                        // console.log('material=' + morph.name);
 
 					}
 

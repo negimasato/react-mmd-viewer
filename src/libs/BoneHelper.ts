@@ -41,8 +41,13 @@ class BoneHelper extends Object3D {
                 i++;
                 continue;
             }
-            if (children.type === 'Mesh') {
-                const v = this.getPosition(this.mesh.skeleton.bones[i - 1], this.matrix);
+            if (children.type === 'Mesh' && children.userData.bone_id != null) {
+                const bone: Bone|undefined = this.mesh.skeleton.bones[children.userData.bone_id];
+                if (!bone) {
+                    continue;
+                }
+                
+                const v = this.getPosition(bone, this.matrix);
                 children.position.copy(v);
                 children.visible = this.visible;
             }

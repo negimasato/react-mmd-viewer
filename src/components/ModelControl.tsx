@@ -30,10 +30,10 @@ function ModelControl(props:any){
     }
 
     async function onLoadModel(){
-        // @ts-ignore
-        const dirHandle = await window.showDirectoryPicker();
-        const loader = new MMDLoader();
         try {
+            // @ts-ignore
+            const dirHandle = await window.showDirectoryPicker();
+            const loader = new MMDLoader();
             const m:ModelClass = new ModelClass(props.models.length);
             // @ts-ignore
             loader.loadFromDir(dirHandle,(mesh: SkinnedMesh) => {
@@ -100,6 +100,7 @@ function ModelControl(props:any){
                     <div>
                         <Select
                         style={{width:"100%"}}
+                        value={props.activeModelId}
                         onChange={onChangeModelSelect}
                         native>
                             {props.models.map((model: ModelClass,index: number) => {
