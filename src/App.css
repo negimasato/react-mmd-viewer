@@ -16,3 +16,7 @@
 .App-link {
   color: #61dafb;
 }
+
+.stats {
+   top:50px !important ;
+}

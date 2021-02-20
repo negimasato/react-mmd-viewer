@@ -2,21 +2,18 @@ import React, { Suspense, useRef, useState } from 'react';
 import * as p from '../package.json';
 import './App.css';
 import { AppBar, Button, createMuiTheme, createStyles, CssBaseline, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, ThemeProvider, Toolbar, Typography } from '@material-ui/core';
-import * as colors from "@material-ui/core/colors";
 import InfoIcon from '@material-ui/icons/Info';
-import MenuIcon from '@material-ui/icons/Menu';
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import Box from '@material-ui/core/Box';
-import { Canvas } from 'react-three-fiber';
 import ModelControl from './components/ModelControl';
-import ModelView from './components/ModelView';
 import BoneControl from './components/BoneControl';
 import FaceControl from './components/FaceControl';
 import { ModelClass } from './classes/ModelClass';
 import { MMDLoader } from './libs/MMDLoader';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
-import { OrbitControls } from '@react-three/drei';
+import MainView from './components/MainView';
+
 
 function App() {
     const [models, setModels] = useState<ModelClass[]>([]);
@@ -24,7 +21,7 @@ function App() {
     const [activeModelId, setActiveModelId] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
     const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
-    const orbit = useRef<OrbitControls>()
+
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuName, setMenuName] = React.useState("");
@@ -100,7 +97,7 @@ function App() {
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline/>
-            <AppBar color="default">
+            <AppBar color="default" position="static">
                 <Toolbar variant="dense">
                     <Box display='flex' flexGrow={1}>
                         <Typography variant="h6">
@@ -164,32 +161,17 @@ function App() {
                     )}
                 </Toolbar>
             </AppBar>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Canvas 
-                    style={{backgroundColor:"black",height:"500px"}}
-                    colorManagement={false} 
-                    camera={{ fov: 50, position: [0, 0, 30] }} >
-                        <ambientLight />
-                        <Suspense fallback={null}>
-                        {models.map((model,index) => {
-                            return(
-                            <ModelView 
-                                key={model.id} 
-                                modelClass={model} 
-                                position={[0,0,0]}　
-                                selectObject={selectObject}
-                                setSelectObject={setSelectObject}
-                                isShowBoneSelect={isShowBoneSelect} 
-                                activeModelId={activeModelId}
-                                controlMode={controlMode}
-                                orbit={orbit}
-                            />
-                        )})}
-                        </Suspense>
-                        <OrbitControls ref={orbit} />
-                        <gridHelper />
-                    </Canvas>
+            <Grid container >
+                <Grid item xs={12} >
+                    <MainView 
+                        models={models} 
+                        setModels={setModels} 
+                        selectObject={selectObject}
+                        activeModelId={activeModelId} 
+                        setActiveModelId={setActiveModelId}
+                        controlMode={controlMode}
+                        isShowBoneSelect={isShowBoneSelect}
+                    />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <ModelControl key="modelcontrol" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />

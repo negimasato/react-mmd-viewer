@@ -1,17 +1,18 @@
 
-import React, { useRef, useEffect, useState, useCallback }  from 'react';
+import React, { useRef, useState, useCallback }  from 'react';
 import { useThree, useFrame } from 'react-three-fiber';
-import { TransformControls, OrbitControls } from '@react-three/drei';
-import { SkinnedMesh, Mesh } from 'three';
+import { TransformControls } from '@react-three/drei';
+import { SkinnedMesh, Mesh, Raycaster } from 'three';
 import BoneHelper from '../libs/BoneHelper';
+import { useLayoutEffect } from 'react';
 
 function ModelView(props: any) {
     const mesh = useRef<SkinnedMesh>()
     const transform = useRef<TransformControls>()
-    const { scene } = useThree()
+    const ray = new Raycaster();
+    const { scene,mouse,camera } = useThree()
     const [ helper, setHelper ] = useState<BoneHelper|null>(null);
     const [ selectObject, setSelectObject ] = useState(0);
-    
     const handleModelClick = useCallback((e:any)=>{
         if(e.object.type === 'Mesh') {
             setSelectObject( (oldObject: any) => {
@@ -21,7 +22,23 @@ function ModelView(props: any) {
             });
         }
     },[]);
-    useEffect(() => {
+    useFrame(() => {
+        if(mesh.current == null)return;
+        ray.setFromCamera( mouse, camera );
+        const intersects = ray.intersectObjects( mesh.current.children[0].children );
+        if(intersects.length > 0) {
+            for ( let i = 0; i < intersects.length; i ++ ) {
+                const bone_id = intersects[i].object.userData.bone_id;
+                const skinnedMesh:SkinnedMesh = mesh.current.children[0] as SkinnedMesh;
+                const bone_name = skinnedMesh.geometry.userData.MMD.bones[bone_id].name;
+                props.setLabelText(bone_name);
+                props.setIsShowLabel(true);
+            }
+        } else {
+            props.setIsShowLabel(false);
+        }
+    })
+    useLayoutEffect(() => {
         if (typeof transform.current !== 'undefined') {
             const controls: any = transform.current
             const callback = (event: any) => {
@@ -38,8 +55,8 @@ function ModelView(props: any) {
                         if(m) {
                             if(helper == null) {
                                 const helper = new BoneHelper(m);
-                                setHelper(helper);
                                 scene.add(helper);
+                                setHelper(helper);
                             } else {
                                 helper.visible = true;
                             }
@@ -64,20 +81,33 @@ function ModelView(props: any) {
                 }
             }
         }
-    }, [props.activeModelId, props.modelClass.id, selectObject, props.isShowBoneSelect, props.controlMode, helper, scene])
+    })
 
     return (
         <>
-            <TransformControls ref={transform} enabled={props.activeModelId == props.modelClass.id ? true : false}>
-                <mesh ref={mesh}
-                onClick={handleModelClick}>
-                    <primitive 
-                        object={props.modelClass.mesh} 
-                        dispose={null} 
-                        scale={[0.5 ,0.5, 0.5]} 
-                        position={props.position}/>
-                </mesh>
-            </TransformControls>
+            {props.activeModelId == props.modelClass.id 
+            ?   <TransformControls 
+                    ref={transform} 
+                    enabled={true}
+                    >
+                    <mesh ref={mesh}
+                    
+                    onClick={handleModelClick}>
+                        <primitive 
+                            object={props.modelClass.mesh} 
+                            dispose={null} 
+                            scale={[0.5 ,0.5, 0.5]} 
+                            position={props.position}/>
+                    </mesh>
+                </TransformControls> 
+            :   <mesh ref={mesh}
+                    onClick={handleModelClick}>
+                        <primitive 
+                            object={props.modelClass.mesh} 
+                            dispose={null} 
+                            scale={[0.5 ,0.5, 0.5]} 
+                            position={props.position}/>
+                </mesh>}
         </>
     );
 }
