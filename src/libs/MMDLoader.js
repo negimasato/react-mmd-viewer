@@ -133,6 +133,23 @@ var MMDLoader = ( function () {
 			}
 			
 		},
+		loadFile: async function(file,rootDirHandle, onLoad, onProgress, onError ){	
+			var modelExtension = this._extractExtension(file.name).toLowerCase();
+			if ( modelExtension !== 'pmd' && modelExtension !== 'pmx' ) {
+				if ( onError ) onError( new Error( 'THREE.MMDLoader: Unknown model file extension .' + modelExtension + '.' ) );
+				return;
+			}
+			var builder = this.meshBuilder.setCrossOrigin( this.crossOrigin );
+			this[ modelExtension === 'pmd' ? 'loadPMDFromFile' : 'loadPMXFromFile' ](file,async (data) => {
+				for await(var [name, entry] of rootDirHandle){
+					if(data.textures.indexOf(name) >= 0){
+						const textureFile = await entry.getFile();
+						this.fileArray[name] = await this.readFileAsDataURL(textureFile);
+					}
+				}
+				onLoad(builder.buildDir( data, this.fileArray, null, null), onProgress, onError);
+			}, onProgress, onError);
+		},
 
 		/**
 		 * Loads Model file (.pmd or .pmx) as a SkinnedMesh.
@@ -1285,8 +1302,6 @@ var MMDLoader = ( function () {
 						isDefaultToon = false;
 
 					}
-					console.log('toonFileName=' + toonFileName);
-					console.log('----');
 					params.gradientMap = this._loadTexture(
 						toonFileName,
 						textures,

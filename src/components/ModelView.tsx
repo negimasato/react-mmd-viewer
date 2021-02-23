@@ -23,7 +23,8 @@ function ModelView(props: any) {
         }
     },[]);
     useFrame(() => {
-        if(mesh.current == null)return;
+        if (mesh.current == null)return;
+        if (props.activeModelIndex != props.index)return;
         ray.setFromCamera( mouse, camera );
         const intersects = ray.intersectObjects( mesh.current.children[0].children );
         if(intersects.length > 0) {
@@ -47,7 +48,8 @@ function ModelView(props: any) {
                 }
             }
             if(controls) {
-                if(props.activeModelId == props.modelClass.id) {
+                if(props.activeModelIndex == props.index) {
+                    if(!mesh.current || !mesh.current.children)return;
                     const m:SkinnedMesh | undefined = mesh.current?.children[0] as SkinnedMesh;
                     if(!m)return;
                     controls.attach(m.skeleton.bones[selectObject]);
@@ -66,7 +68,6 @@ function ModelView(props: any) {
                             helper.visible = false;
                         }
                     }
-
                     controls.setMode(props.controlMode);
 
                 } else {
@@ -85,7 +86,7 @@ function ModelView(props: any) {
 
     return (
         <>
-            {props.activeModelId == props.modelClass.id 
+            {props.activeModelIndex == props.index 
             ?   <TransformControls 
                     ref={transform} 
                     enabled={true}

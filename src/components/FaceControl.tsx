@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import {  createStyles,  InputLabel, makeStyles, Slider, Theme } from '@material-ui/core';
 import { SkinnedMesh } from 'three';
+import ProjectContext from '../contexts/ProjectContext';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -63,15 +64,17 @@ function MorphControl(props : Props) {
 function FaceControl(props:any){
     const [morphs, setMorphs] = useState([[],[],[],[]]);
     const [morphSliders, setMorphSliders] = useState([0, 0, 0, 0]);
+    const projectContext = useContext(ProjectContext);
 
     useEffect(() => {
-        if(props.activeModelId === -1)return;
-        if(props.models.length < props.activeModelId) {
-            console.error("存在しない配列にアクセスしようとしています。");
+        if(projectContext.activeModelIndex === -1)return;
+        if(
+            (projectContext.models.length < projectContext.activeModelIndex) || (!projectContext.models[projectContext.activeModelIndex])
+            ) {
             return;
         }
-        const mesh:SkinnedMesh = props.models[props.activeModelId].mesh;
-        if(!mesh) {
+        const mesh:SkinnedMesh | null = projectContext.models[projectContext.activeModelIndex].mesh;
+        if(!mesh || !mesh.morphTargetInfluences){
             return;
         }
         const morphs = mesh.geometry.userData.MMD.morphs;
@@ -100,11 +103,12 @@ function FaceControl(props:any){
             i++;
         }
         setMorphs(morphs_array)
-    },[props.models,props.activeModelId])
+    },[projectContext.models,projectContext.activeModelIndex])
 
     const handleChange = (event: any, newValue: number | number[],morphs_array_num: number,selectValue: number ) => {
-        const mesh: SkinnedMesh = props.models[props.activeModelId].mesh;
-        if(!mesh.morphTargetInfluences){
+        const mesh: SkinnedMesh | null = projectContext.models[projectContext.activeModelIndex].mesh;
+        if(!mesh || !mesh.morphTargetInfluences){
+            console.error("meshがnullかmorphTargetInfluencesがnulldです")
             return;
         }
         mesh.morphTargetInfluences[selectValue] = newValue as number;

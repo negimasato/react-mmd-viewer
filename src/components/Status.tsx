@@ -16,7 +16,7 @@ const base = css`
   user-select: none;
   color: black;
   background-color: white;
-  z-index:10000;
+  z-index:100000;
 `
 
 const UpperLeft = styled.div`

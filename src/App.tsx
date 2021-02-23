@@ -13,21 +13,46 @@ import { ModelClass } from './classes/ModelClass';
 import { MMDLoader } from './libs/MMDLoader';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
 import MainView from './components/MainView';
+import StartDialog from './components/StartDialog';
+import ProjectContext from './contexts/ProjectContext';
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      maxWidth: 360,
+      backgroundColor: theme.palette.background.paper,
+    },
+    paper: {
+      width: '80%',
+      maxHeight: 435,
+    },
+  }),
+);
 
 function App() {
     const [models, setModels] = useState<ModelClass[]>([]);
     const [selectObject, setSelectObject] = useState(0);
-    const [activeModelId, setActiveModelId] = useState(-1);
+    const [activeModelIndex, setactiveModelIndex] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
     const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
-
-
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuName, setMenuName] = React.useState("");
     const [darkMode, setDarkMode] = React.useState(
         localStorage.getItem("darkMode") === "on" ? true : false
     );
+    const [dirHandle, setDirHandle] = useState();
+    const classes = useStyles();
+    const [open, setOpen] = React.useState(true);
+    const [value, setValue] = React.useState('Dione');
+
+    const handleStartDialogClose = (newValue?: string) => {
+        setOpen(false);
+    
+        if (newValue) {
+          setValue(newValue);
+        }
+      };
     
     const handleMenu = (event: React.MouseEvent<HTMLElement>, menuName:string) => {
         setAnchorEl(event.currentTarget);
@@ -94,8 +119,13 @@ function App() {
         })
     }
 
+    const saveProject = async (e: any) => {
+        
+    }
+
     return (
         <ThemeProvider theme={theme}>
+            <ProjectContext.Provider value={{dirHandle,setDirHandle,models,setModels,activeModelIndex,setactiveModelIndex}}>
             <CssBaseline/>
             <AppBar color="default" position="static">
                 <Toolbar variant="dense">
@@ -121,6 +151,7 @@ function App() {
                             open={menuName === 'file' ? true : false}
                             onClose={handleClose}
                         >
+                            <MenuItem onClick={saveProject}>プロジェクトを保存する</MenuItem>
                             <MenuItem onClick={openPoseFile}>ポーズ読み込み</MenuItem>
                         </Menu>
                     </Box>
@@ -161,26 +192,30 @@ function App() {
                     )}
                 </Toolbar>
             </AppBar>
+            <StartDialog
+                classes={{
+                    paper: classes.paper,
+                }}
+                id="ringtone-menu"
+                keepMounted
+                open={open}
+                onClose={handleStartDialogClose}
+                value={value}
+            />
             <Grid container >
                 <Grid item xs={12} >
                     <MainView 
-                        models={models} 
-                        setModels={setModels} 
                         selectObject={selectObject}
-                        activeModelId={activeModelId} 
-                        setActiveModelId={setActiveModelId}
                         controlMode={controlMode}
                         isShowBoneSelect={isShowBoneSelect}
                     />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <ModelControl key="modelcontrol" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
+                    <ModelControl key="modelcontrol"  />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <BoneControl 
-                        key="bonecontrol" 
-                        models={models} 
-                        setActiveModelId={setActiveModelId} 
+                        key="bonecontrol"
                         controlMode={controlMode} 
                         setControlMode={setControlMode} 
                         isShowBoneSelect={isShowBoneSelect}
@@ -188,9 +223,10 @@ function App() {
                     />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <FaceControl key="faceControl" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
+                    <FaceControl key="faceControl" />
                 </Grid>
             </Grid>
+            </ProjectContext.Provider>
         </ThemeProvider>
     );
 }
