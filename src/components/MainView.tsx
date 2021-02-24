@@ -34,14 +34,18 @@ function MainView(props:any){
             <Canvas
             className="mainView"
             onMouseMove={onMouseMove}
-            style={{backgroundColor:"black",height:"500px"}}
+            style={{backgroundColor:"white",height:"500px"}}
             colorManagement={false}
-            camera={{fov:50,position:[0,10,30]}}>
+            camera={{fov:30,position:[0,10,30]}}>
                 <Stats
                     showPanel={0} // Start-up panel (default=0)
                     className={"stats"}
                 />
-                <ambientLight />
+                <directionalLight 
+                      intensity={0.9}
+                      position={[-0.5, -1, 0.5]}
+                      castShadow={true}
+                />
                 <Suspense fallback={null}>
                 {projectContext.models.map((model:ModelClass,index: any) => {
                     // Canvas内のコンポーネントへはContextは渡せない？
