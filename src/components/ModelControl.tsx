@@ -66,13 +66,13 @@ function ModelControl(props:any){
 
     async function onLoadModel(){
         try {
-            const subDir = await projectContext.dirHandle.getDirectoryHandle('Models', {create: false});
-            const array = await getFilesFromDir(subDir,"");
+            // @ts-ignore
+            const dirHandle = await window.showDirectoryPicker();
+            const array = await getFilesFromDir(dirHandle,"");
             setSelectLoadModelDialogValue(array);
             setSelectLoadModelDialogOpen(true);
         } catch(e) {
             console.error(e);
-            alert(e);
         }
     }
 

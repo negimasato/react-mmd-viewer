@@ -4,10 +4,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import Dialog from '@material-ui/core/Dialog';
 import { Backdrop, Button, CircularProgress, DialogActions, Link, List, ListItem, ListItemText, Typography } from '@material-ui/core';
 import ProjectContext from '../contexts/ProjectContext';
-import { SettingsPowerRounded } from '@material-ui/icons';
 import { ModelClass } from '../classes/ModelClass';
 import { MMDLoader } from '../libs/MMDLoader';
-import { models } from '@tensorflow/tfjs';
 
 export interface SelectLoadModelDialogProps {
     values: {
@@ -31,9 +29,9 @@ function SelectLoadModelDialog(props: SelectLoadModelDialogProps) {
         handleClose();
         setProgressOpen(true);
         const loader = new MMDLoader();
-        const m:ModelClass = new ModelClass(projectContext.models.length);
         // @ts-ignore
         loader.loadFile(props.values[index].file, props.values[index].rootDirHandle, (mesh: SkinnedMesh) => {
+            const m:ModelClass = new ModelClass();
             m.mesh = mesh;
             const comment = "モデル情報:\n\n" + mesh.geometry.userData.MMD.comment;
             m.comment = comment;

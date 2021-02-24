@@ -133,7 +133,9 @@ var MMDLoader = ( function () {
 			}
 			
 		},
-		loadFile: async function(file,rootDirHandle, onLoad, onProgress, onError ){	
+		loadFile: async function(file,rootDirHandle, onLoad, onProgress, onError ){
+			this.fileArray = [];
+			await this.getFilesFromDir(rootDirHandle,"");
 			var modelExtension = this._extractExtension(file.name).toLowerCase();
 			if ( modelExtension !== 'pmd' && modelExtension !== 'pmx' ) {
 				if ( onError ) onError( new Error( 'THREE.MMDLoader: Unknown model file extension .' + modelExtension + '.' ) );
@@ -141,12 +143,6 @@ var MMDLoader = ( function () {
 			}
 			var builder = this.meshBuilder.setCrossOrigin( this.crossOrigin );
 			this[ modelExtension === 'pmd' ? 'loadPMDFromFile' : 'loadPMXFromFile' ](file,async (data) => {
-				for await(var [name, entry] of rootDirHandle){
-					if(data.textures.indexOf(name) >= 0){
-						const textureFile = await entry.getFile();
-						this.fileArray[name] = await this.readFileAsDataURL(textureFile);
-					}
-				}
 				onLoad(builder.buildDir( data, this.fileArray, null, null), onProgress, onError);
 			}, onProgress, onError);
 		},
@@ -512,11 +508,11 @@ var MMDLoader = ( function () {
 
 		buildDir: function (data, dir, onProgress, onError ) {
 			var geometry = this.geometryBuilder.build( data );
+			console.log(geometry);
 			var material = this.materialBuilder
 				.setCrossOrigin( this.crossOrigin )
 				.setResourceDir( dir )
 				.build( data, geometry, onProgress, onError );
-
 			var mesh = new SkinnedMesh( geometry, material );
 
 			var skeleton = new Skeleton( initBones( mesh ) );

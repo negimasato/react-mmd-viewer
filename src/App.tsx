@@ -1,4 +1,4 @@
-import React, { Suspense, useRef, useState } from 'react';
+import React, { Suspense, useContext, useRef, useState } from 'react';
 import * as p from '../package.json';
 import './App.css';
 import { AppBar, Button, createMuiTheme, createStyles, CssBaseline, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, ThemeProvider, Toolbar, Typography } from '@material-ui/core';
@@ -119,9 +119,6 @@ function App() {
         })
     }
 
-    const saveProject = async (e: any) => {
-        
-    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -151,7 +148,7 @@ function App() {
                             open={menuName === 'file' ? true : false}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={saveProject}>プロジェクトを保存する</MenuItem>
+                            {/* <MenuItem onClick={saveProject}>プロジェクトを保存する</MenuItem> */}
                             <MenuItem onClick={openPoseFile}>ポーズ読み込み</MenuItem>
                         </Menu>
                     </Box>
@@ -192,7 +189,7 @@ function App() {
                     )}
                 </Toolbar>
             </AppBar>
-            <StartDialog
+            {/* <StartDialog
                 classes={{
                     paper: classes.paper,
                 }}
@@ -201,7 +198,7 @@ function App() {
                 open={open}
                 onClose={handleStartDialogClose}
                 value={value}
-            />
+            /> */}
             <Grid container >
                 <Grid item xs={12} >
                     <MainView 
