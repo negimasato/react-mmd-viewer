@@ -118,7 +118,10 @@ function App() {
             console.log(error);
         })
     }
-
+    const openAbout = async (e: any) => {
+        const message = "これはWeb上でMMDを表示させる事ができるアプリです。\nまだほとんどがテスト段階ですので、多くの問題があります。\n試す場合は自己責任でお願いします。\nモデルデータを利用する場合は必ず製作者の利用規約を守ってご利用ください。\n最新のGoogleChromeをご利用ください。\n\nこのアプリのソースはGithubで公開していますので、気になる方はご自由にご覧ください。";
+        alert(message);
+    }
 
     return (
         <ThemeProvider theme={theme}>
@@ -176,6 +179,7 @@ function App() {
                         open={menuName === 'info' ? true : false}
                         onClose={handleClose}
                     >
+                        <MenuItem onClick={openAbout}>About</MenuItem>
                         <MenuItem onClick={() => window.open("https://github.com/" + p.author.name + "/" + p.name)}>Github</MenuItem>
                     </Menu>
                     {darkMode ? (
