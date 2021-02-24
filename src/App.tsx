@@ -1,36 +1,58 @@
-import React, { Suspense, useRef, useState } from 'react';
+import React, { Suspense, useContext, useRef, useState } from 'react';
 import * as p from '../package.json';
 import './App.css';
 import { AppBar, Button, createMuiTheme, createStyles, CssBaseline, Grid, IconButton, makeStyles, Menu, MenuItem, Theme, ThemeProvider, Toolbar, Typography } from '@material-ui/core';
-import * as colors from "@material-ui/core/colors";
 import InfoIcon from '@material-ui/icons/Info';
-import MenuIcon from '@material-ui/icons/Menu';
 import Brightness7Icon from "@material-ui/icons/Brightness7";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import Box from '@material-ui/core/Box';
-import { Canvas } from 'react-three-fiber';
 import ModelControl from './components/ModelControl';
-import ModelView from './components/ModelView';
 import BoneControl from './components/BoneControl';
 import FaceControl from './components/FaceControl';
 import { ModelClass } from './classes/ModelClass';
 import { MMDLoader } from './libs/MMDLoader';
 import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHelper';
-import { OrbitControls } from '@react-three/drei';
+import MainView from './components/MainView';
+import StartDialog from './components/StartDialog';
+import ProjectContext from './contexts/ProjectContext';
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    root: {
+      width: '100%',
+      maxWidth: 360,
+      backgroundColor: theme.palette.background.paper,
+    },
+    paper: {
+      width: '80%',
+      maxHeight: 435,
+    },
+  }),
+);
 
 function App() {
     const [models, setModels] = useState<ModelClass[]>([]);
     const [selectObject, setSelectObject] = useState(0);
-    const [activeModelId, setActiveModelId] = useState(-1);
+    const [activeModelIndex, setactiveModelIndex] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
     const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
-    const orbit = useRef<OrbitControls>()
-
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuName, setMenuName] = React.useState("");
     const [darkMode, setDarkMode] = React.useState(
         localStorage.getItem("darkMode") === "on" ? true : false
     );
+    const [dirHandle, setDirHandle] = useState();
+    const classes = useStyles();
+    const [open, setOpen] = React.useState(true);
+    const [value, setValue] = React.useState('Dione');
+
+    const handleStartDialogClose = (newValue?: string) => {
+        setOpen(false);
+    
+        if (newValue) {
+          setValue(newValue);
+        }
+      };
     
     const handleMenu = (event: React.MouseEvent<HTMLElement>, menuName:string) => {
         setAnchorEl(event.currentTarget);
@@ -96,11 +118,16 @@ function App() {
             console.log(error);
         })
     }
+    const openAbout = async (e: any) => {
+        const message = "これはWeb上でMMDを表示させる事ができるアプリです。\nまだほとんどがテスト段階ですので、多くの問題があります。\n試す場合は自己責任でお願いします。\nモデルデータを利用する場合は必ず製作者の利用規約を守ってご利用ください。\n最新のGoogleChromeをご利用ください。\n\nこのアプリのソースはGithubで公開していますので、気になる方はご自由にご覧ください。";
+        alert(message);
+    }
 
     return (
         <ThemeProvider theme={theme}>
+            <ProjectContext.Provider value={{dirHandle,setDirHandle,models,setModels,activeModelIndex,setactiveModelIndex}}>
             <CssBaseline/>
-            <AppBar color="default">
+            <AppBar color="default" position="static">
                 <Toolbar variant="dense">
                     <Box display='flex' flexGrow={1}>
                         <Typography variant="h6">
@@ -124,6 +151,7 @@ function App() {
                             open={menuName === 'file' ? true : false}
                             onClose={handleClose}
                         >
+                            {/* <MenuItem onClick={saveProject}>プロジェクトを保存する</MenuItem> */}
                             <MenuItem onClick={openPoseFile}>ポーズ読み込み</MenuItem>
                         </Menu>
                     </Box>
@@ -151,6 +179,7 @@ function App() {
                         open={menuName === 'info' ? true : false}
                         onClose={handleClose}
                     >
+                        <MenuItem onClick={openAbout}>About</MenuItem>
                         <MenuItem onClick={() => window.open("https://github.com/" + p.author.name + "/" + p.name)}>Github</MenuItem>
                     </Menu>
                     {darkMode ? (
@@ -164,41 +193,30 @@ function App() {
                     )}
                 </Toolbar>
             </AppBar>
-            <Grid container>
-                <Grid item xs={12}>
-                    <Canvas 
-                    style={{backgroundColor:"black",height:"500px"}}
-                    colorManagement={false} 
-                    camera={{ fov: 50, position: [0, 0, 30] }} >
-                        <ambientLight />
-                        <Suspense fallback={null}>
-                        {models.map((model,index) => {
-                            return(
-                            <ModelView 
-                                key={model.id} 
-                                modelClass={model} 
-                                position={[0,0,0]}　
-                                selectObject={selectObject}
-                                setSelectObject={setSelectObject}
-                                isShowBoneSelect={isShowBoneSelect} 
-                                activeModelId={activeModelId}
-                                controlMode={controlMode}
-                                orbit={orbit}
-                            />
-                        )})}
-                        </Suspense>
-                        <OrbitControls ref={orbit} />
-                        <gridHelper />
-                    </Canvas>
+            {/* <StartDialog
+                classes={{
+                    paper: classes.paper,
+                }}
+                id="ringtone-menu"
+                keepMounted
+                open={open}
+                onClose={handleStartDialogClose}
+                value={value}
+            /> */}
+            <Grid container >
+                <Grid item xs={12} >
+                    <MainView 
+                        selectObject={selectObject}
+                        controlMode={controlMode}
+                        isShowBoneSelect={isShowBoneSelect}
+                    />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <ModelControl key="modelcontrol" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
+                    <ModelControl key="modelcontrol"  />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <BoneControl 
-                        key="bonecontrol" 
-                        models={models} 
-                        setActiveModelId={setActiveModelId} 
+                        key="bonecontrol"
                         controlMode={controlMode} 
                         setControlMode={setControlMode} 
                         isShowBoneSelect={isShowBoneSelect}
@@ -206,9 +224,10 @@ function App() {
                     />
                 </Grid>
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <FaceControl key="faceControl" models={models} setModels={setModels} activeModelId={activeModelId} setActiveModelId={setActiveModelId} />
+                    <FaceControl key="faceControl" />
                 </Grid>
             </Grid>
+            </ProjectContext.Provider>
         </ThemeProvider>
     );
 }

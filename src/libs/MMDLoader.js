@@ -133,6 +133,19 @@ var MMDLoader = ( function () {
 			}
 			
 		},
+		loadFile: async function(file,rootDirHandle, onLoad, onProgress, onError ){
+			this.fileArray = [];
+			await this.getFilesFromDir(rootDirHandle,"");
+			var modelExtension = this._extractExtension(file.name).toLowerCase();
+			if ( modelExtension !== 'pmd' && modelExtension !== 'pmx' ) {
+				if ( onError ) onError( new Error( 'THREE.MMDLoader: Unknown model file extension .' + modelExtension + '.' ) );
+				return;
+			}
+			var builder = this.meshBuilder.setCrossOrigin( this.crossOrigin );
+			this[ modelExtension === 'pmd' ? 'loadPMDFromFile' : 'loadPMXFromFile' ](file,async (data) => {
+				onLoad(builder.buildDir( data, this.fileArray, null, null), onProgress, onError);
+			}, onProgress, onError);
+		},
 
 		/**
 		 * Loads Model file (.pmd or .pmx) as a SkinnedMesh.
@@ -495,11 +508,11 @@ var MMDLoader = ( function () {
 
 		buildDir: function (data, dir, onProgress, onError ) {
 			var geometry = this.geometryBuilder.build( data );
+			console.log(geometry);
 			var material = this.materialBuilder
 				.setCrossOrigin( this.crossOrigin )
 				.setResourceDir( dir )
 				.build( data, geometry, onProgress, onError );
-
 			var mesh = new SkinnedMesh( geometry, material );
 
 			var skeleton = new Skeleton( initBones( mesh ) );
@@ -1285,8 +1298,6 @@ var MMDLoader = ( function () {
 						isDefaultToon = false;
 
 					}
-					console.log('toonFileName=' + toonFileName);
-					console.log('----');
 					params.gradientMap = this._loadTexture(
 						toonFileName,
 						textures,

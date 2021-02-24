@@ -4,7 +4,7 @@
     "name": "negimasato",
     "email": "nishimasa.subaru@gmail.com"
   },
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.3",
@@ -19,6 +19,7 @@
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
+    "@types/styled-components": "^5.1.7",
     "aws-sdk": "^2.842.0",
     "canvas": "^2.6.1",
     "gh-pages": "^3.1.0",
@@ -26,6 +27,7 @@
     "react-dom": "^17.0.1",
     "react-scripts": "4.0.2",
     "react-three-fiber": "^5.3.18",
+    "styled-components": "^5.2.1",
     "three": "^0.125.2",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
