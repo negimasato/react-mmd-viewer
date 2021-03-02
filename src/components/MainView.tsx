@@ -1,10 +1,10 @@
-import { OrbitControls, OrthographicCamera, PerspectiveCamera, Stats, useCamera } from "@react-three/drei";
+import { OrbitControls, OrthographicCamera, Stats, useCamera } from "@react-three/drei";
 import { AnyMxRecord } from "dns";
 import React, { createRef, Suspense, useContext, useRef, useState } from "react";
 import { useEffect } from "react";
 import { useMemo } from "react";
-import { Camera, Canvas, createPortal, SceneProps, useFrame, useThree } from "react-three-fiber";
-import { Matrix4,  Mesh,  Raycaster,  Scene, Sprite, SpriteMaterial, Texture, Vector2, Vector3 } from "three";
+import { Canvas, createPortal, SceneProps, useFrame, useThree } from "react-three-fiber";
+import { Matrix4,  Mesh,  PerspectiveCamera,  Raycaster,  Scene, Sprite, SpriteMaterial, Texture, Vector2, Vector3 } from "three";
 import { ModelClass } from "../classes/ModelClass";
 import Label from "./Label";
 import ModelView from "./ModelView";
@@ -12,6 +12,7 @@ import Status from "./Status";
 import '../App.css'
 import { useCallback } from "react";
 import ProjectContext from "../contexts/ProjectContext";
+import ActionButtons from './ActionButtons';
 
 function MainView(props:any){
     const [ labelP, setLabelP ] = useState<[number,number]>([0,0]);
@@ -31,6 +32,7 @@ function MainView(props:any){
                 ? <Status top={labelP[0]} left={labelP[1]} text={labelText}/>
                 : null 
             }
+            <ActionButtons orbit={orbit} height={500} />
             <Canvas
             className="mainView"
             onMouseMove={onMouseMove}
