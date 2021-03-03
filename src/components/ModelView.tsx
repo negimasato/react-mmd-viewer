@@ -68,7 +68,11 @@ function ModelView(props: any) {
                             helper.visible = false;
                         }
                     }
-                    controls.setMode(props.controlMode);
+                    if(props.controlMode != "") {
+                        controls.setMode(props.controlMode);
+                    } else {
+                        controls.detach();
+                    }
 
                 } else {
                     controls.detach();

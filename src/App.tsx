@@ -217,7 +217,7 @@ function App() {
                 <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
                     <BoneControl 
                         key="bonecontrol"
-                        controlMode={controlMode} 
+                        controlMode={controlMode}
                         setControlMode={setControlMode} 
                         isShowBoneSelect={isShowBoneSelect}
                         setIsShowBoneSelect={setIsShowBoneSelect}
