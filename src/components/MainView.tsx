@@ -1,10 +1,10 @@
-import { OrbitControls, OrthographicCamera, PerspectiveCamera, Stats, useCamera } from "@react-three/drei";
+import { OrbitControls, OrthographicCamera, Stats, useCamera } from "@react-three/drei";
 import { AnyMxRecord } from "dns";
 import React, { createRef, Suspense, useContext, useRef, useState } from "react";
 import { useEffect } from "react";
 import { useMemo } from "react";
-import { Camera, Canvas, createPortal, SceneProps, useFrame, useThree } from "react-three-fiber";
-import { Matrix4,  Mesh,  Raycaster,  Scene, Sprite, SpriteMaterial, Texture, Vector2, Vector3 } from "three";
+import { Canvas, createPortal, SceneProps, useFrame, useThree } from "react-three-fiber";
+import { Matrix4,  Mesh,  PerspectiveCamera,  Raycaster,  Scene, Sprite, SpriteMaterial, Texture, Vector2, Vector3 } from "three";
 import { ModelClass } from "../classes/ModelClass";
 import Label from "./Label";
 import ModelView from "./ModelView";
@@ -12,6 +12,25 @@ import Status from "./Status";
 import '../App.css'
 import { useCallback } from "react";
 import ProjectContext from "../contexts/ProjectContext";
+import ActionButtons from './ActionButtons';
+import { Button } from "@material-ui/core";
+
+function Camera(props:any) {
+    const ref = useRef<PerspectiveCamera>()
+    const { setDefaultCamera } = useThree()
+
+    useEffect(() => {
+        if(ref && ref.current) {
+            let camera = ref.current;
+            if(camera.fov != props.fov){
+                camera.fov = props.fov;
+                camera.updateProjectionMatrix();
+            }
+            setDefaultCamera(camera);
+        }
+    })
+    return <perspectiveCamera ref={ref} position={[0,10,30]} />
+}
 
 function MainView(props:any){
     const [ labelP, setLabelP ] = useState<[number,number]>([0,0]);
@@ -19,7 +38,6 @@ function MainView(props:any){
     const [ isShowLabel, setIsShowLabel] = useState(true);
     const orbit = useRef<OrbitControls>();
     const onMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement, MouseEvent>)=>{
-        // console.log("clientX=" + e.clientX);
         setLabelP([e.clientY,e.clientX]);
     },[]);
     const projectContext = useContext(ProjectContext);
@@ -31,12 +49,14 @@ function MainView(props:any){
                 ? <Status top={labelP[0]} left={labelP[1]} text={labelText}/>
                 : null 
             }
+            <ActionButtons orbit={orbit} height={350} />
             <Canvas
             className="mainView"
             onMouseMove={onMouseMove}
-            style={{backgroundColor:"white",height:"500px"}}
+            style={{backgroundColor:"white",height:"350px"}}
             colorManagement={false}
-            camera={{fov:30,position:[0,10,30]}}>
+            >
+                <Camera fov={projectContext.fov} />
                 <Stats
                     showPanel={0} // Start-up panel (default=0)
                     className={"stats"}
@@ -67,6 +87,17 @@ function MainView(props:any){
                 <OrbitControls ref={orbit} />
                 <gridHelper />
             </Canvas>
+            <div style={{height:"32px",width:"100%"}}>
+                {projectContext.editMode === 'model' ? (
+                    <Button size="small" onClick={() => {projectContext.setEditMode('camera')}}>
+                        カメラ編
+                    </Button>
+                ): (
+                    <Button size="small" onClick={() => {projectContext.setEditMode('model')}}>
+                        モデル編
+                    </Button>
+                )}
+            </div>
         </div>
     );
 }
