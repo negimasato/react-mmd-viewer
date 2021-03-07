@@ -15,6 +15,8 @@ import { MMDAnimationHelper } from 'three/examples/jsm/animation/MMDAnimationHel
 import MainView from './components/MainView';
 import StartDialog from './components/StartDialog';
 import ProjectContext from './contexts/ProjectContext';
+import ModelControllers from './components/ModelControllers';
+import CameraControllers from './components/CameraControllers';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -35,7 +37,9 @@ function App() {
     const [selectObject, setSelectObject] = useState(0);
     const [activeModelIndex, setactiveModelIndex] = useState(-1);
     const [controlMode, setControlMode] = useState('rotate');
-    const [ isShowBoneSelect, setIsShowBoneSelect ] = useState(false);
+    const [editMode, setEditMode] = useState('model');
+    const [fov, setFov] = useState(50);
+    const [isShowBoneSelect, setIsShowBoneSelect] = useState(false);
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const [menuName, setMenuName] = React.useState("");
     const [darkMode, setDarkMode] = React.useState(
@@ -125,7 +129,18 @@ function App() {
 
     return (
         <ThemeProvider theme={theme}>
-            <ProjectContext.Provider value={{dirHandle,setDirHandle,models,setModels,activeModelIndex,setactiveModelIndex}}>
+            <ProjectContext.Provider value={{
+                dirHandle,
+                setDirHandle,
+                models,
+                setModels,
+                activeModelIndex,
+                setactiveModelIndex,
+                editMode,
+                setEditMode,
+                fov,
+                setFov
+            }}>
             <CssBaseline/>
             <AppBar color="default" position="static">
                 <Toolbar variant="dense">
@@ -211,21 +226,16 @@ function App() {
                         isShowBoneSelect={isShowBoneSelect}
                     />
                 </Grid>
-                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <ModelControl key="modelcontrol"  />
-                </Grid>
-                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <BoneControl 
-                        key="bonecontrol"
+                {editMode === 'model' ? (
+                    <ModelControllers 
                         controlMode={controlMode}
                         setControlMode={setControlMode} 
                         isShowBoneSelect={isShowBoneSelect}
                         setIsShowBoneSelect={setIsShowBoneSelect}
                     />
-                </Grid>
-                <Grid item xs={4} style={{border: "1px solid #ffffff"}}>
-                    <FaceControl key="faceControl" />
-                </Grid>
+                ) : (
+                    <CameraControllers />
+                )}
             </Grid>
             </ProjectContext.Provider>
         </ThemeProvider>
